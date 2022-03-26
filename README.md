@@ -1,0 +1,1 @@
+<!-- Tested a simple smart contract with truffle and gnache -->
