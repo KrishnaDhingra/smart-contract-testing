@@ -17,8 +17,8 @@ contract smartContract{
     bool destroyed = false;
     uint counter = 1;
 
-    constructor(){
-        manager = payable(msg.sender);
+    constructor(address _manager){
+        manager = payable(_manager);
     }
     modifier checkDestroyed{
         require(!destroyed);
@@ -57,7 +57,7 @@ contract smartContract{
         manager.transfer(address(this).balance);
         destroyed=true;
     }
-    fallback() payable external{
+    receive() payable external{
         payable(msg.sender).transfer(msg.value);
     }
 }
