@@ -62,4 +62,23 @@ contract('SmartContract', (accounts) => {
     afterBalance = web3.utils.toBN(sellerAfterBalance)
     assert(afterBalance.sub(beforeBalance).toNumber() === 1000)
   })
+  it('Should not destroy if not manager', async () => {
+    await expectRevert(
+      smartContract.destroy({ from: accounts[4] }),
+      'Only the manager can run this command',
+    )
+  })
+  it('Should destroy the smart contract', async () => {
+    await smartContract.destroy({ from: accounts[0] })
+    let destroy = await smartContract.destroyed()
+    assert(destroy) // it should be true
+  })
+  // it('Should check the fallback function', async () => {
+  //   const sellerBeforeBalance = await web3.eth.getBalance(accounts[1])
+  //   smartContract.buy(1, { from: accounts[2], value: 1000 })
+  //   const sellerAfterBalance = await web3.eth.getBalance(accounts[1])
+  //   beforeBalance = web3.utils.toBN(sellerBeforeBalance)
+  //   afterBalance = web3.utils.toBN(sellerAfterBalance)
+  //   assert(afterBalance.sub(beforeBalance).toNumber() === 0)
+  // })
 })

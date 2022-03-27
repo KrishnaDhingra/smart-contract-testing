@@ -14,7 +14,7 @@ struct Product{
 contract smartContract{
     Product[] public products;
     address payable public manager;
-    bool destroyed = false;
+    bool public destroyed = false;
     uint counter = 1;
 
     constructor(address _manager){
