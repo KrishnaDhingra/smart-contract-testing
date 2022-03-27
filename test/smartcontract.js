@@ -10,17 +10,17 @@ contract('SmartContract', (accounts) => {
     smartContract = await SmartContract.deployed()
   })
 
-  it('Should not register product if price is not greater than zero', async () => {
-    await expectRevert(
-      smartContract.registerProduct(
-        'SmartPhone',
-        0,
-        'This is a very good smart phone',
-        { from: accounts[1] },
-      ),
-      'The price of the product should be greater than zero',
-    )
-  })
+  // it('Should not register product if price is not greater than zero', async () => {
+  //   await expectRevert(
+  //     smartContract.registerProduct(
+  //       'SmartPhone',
+  //       0,
+  //       'This is a very good smart phone',
+  //       { from: accounts[1] },
+  //     ),
+  //     'The price of the product should be greater than zero',
+  //   )
+  // })
   it('Should register product', async () => {
     await smartContract.registerProduct(
       'SmartPhone',
@@ -29,8 +29,13 @@ contract('SmartContract', (accounts) => {
       { from: accounts[1] },
     )
     const products = await smartContract.getProduct()
-    console.log(products.length)
     assert(products.length === 1)
+  })
+  it('Should not buy if buyer is seller', async () => {
+    await expectRevert(
+      smartContract.buy(1, { from: accounts[1], value: 1000 }),
+      'The seller cannot purchase the product',
+    )
   })
   it('Should not buy if not exact amount', async () => {
     await expectRevert(
@@ -38,12 +43,23 @@ contract('SmartContract', (accounts) => {
       'Please send the exact price of the product',
     )
   })
-  it('Should not buy if buyer is seller', async () => {
-    await smartContract.buy(1, { from: accounts[1], value: 1000 })
-    console.log(await smartContract.getProduct()[0].productPrice)
-    // await expectRevert(
-    //   smartContract.buy(1, { from: accounts[1], value: 1000 }),
-    //   'The seller cannot purchase the product',
-    // )
+  it('Should buy the product', async () => {
+    await smartContract.buy(1, { from: accounts[2], value: 1000 })
+    let product = await smartContract.getProduct()
+    assert(product[0].buyer === accounts[2])
+  })
+  it('Should not deliver it not buyer', async () => {
+    await expectRevert(
+      smartContract.deliver(1, { from: accounts[3] }),
+      'Only buyer can confirm',
+    )
+  })
+  it('Should deliver product', async () => {
+    const sellerBeforeBalance = await web3.eth.getBalance(accounts[1])
+    await smartContract.deliver(1, { from: accounts[2] })
+    const sellerAfterBalance = await web3.eth.getBalance(accounts[1])
+    beforeBalance = web3.utils.toBN(sellerBeforeBalance)
+    afterBalance = web3.utils.toBN(sellerAfterBalance)
+    assert(afterBalance.sub(beforeBalance).toNumber() === 1000)
   })
 })

@@ -29,7 +29,7 @@ contract smartContract{
         require(_productPrice > 0, "The price of the product should be greater than zero");
         Product memory product;
         product.productName=_productName;
-        product.productPrice=_productPrice * 10 ** 18;
+        product.productPrice=_productPrice;
         product.description=_description;
         product.seller=payable(msg.sender);
         product.productId=counter;
@@ -40,8 +40,8 @@ contract smartContract{
         return products;
     }
     function buy(uint _productId) public payable checkDestroyed{
-        require(msg.value == products[_productId - 1].productPrice,  "Please send the exact price of the product");
         require(msg.sender != products[_productId - 1].seller, "The seller cannot purchase the product");
+        require(msg.value == products[_productId - 1].productPrice,  "Please send the exact price of the product");
         products[_productId - 1].buyer = msg.sender;
     }
     function contractBal() public view checkDestroyed returns(uint){
